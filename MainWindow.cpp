@@ -1,0 +1,77 @@
+
+#include "MainWindow.h"
+#include "NewSimulationDialog.h"
+#include <QtCore/QSettings>
+
+using namespace Pirogronian;
+using namespace Qt;
+
+MainWindow::MainWindow() {
+	QSettings conf;
+	
+	resize(conf.value("MainWindow.size", QSize(300, 200)).toSize());
+	move(conf.value("MainWindow.pos", QPoint(300, 200)).toPoint());
+	
+	timer = new QTimer(this);
+	timer->setInterval(25);
+	timer->setSingleShot(false);
+	connect(timer, SIGNAL(timeout()), this, SLOT(stepSimulation()));
+	
+	createActions();
+	createMenus();
+	
+	pres = new Presenter;
+	
+	setCentralWidget(pres);
+}
+
+MainWindow::~MainWindow() {
+	QSettings conf;
+	
+	conf.setValue("MainWindow.size", size());
+	conf.setValue("MainWindow.pos", pos());
+}
+
+void MainWindow::createActions() {
+	newSimulationAction = new QAction(QIcon::fromTheme("New Document"), tr("Nowa symulacja"), this);
+	connect(newSimulationAction, SIGNAL(triggered()), this, SLOT(newSimulation()));
+	
+	startSimulationAction = new QAction(tr("Zacznij symulację"), this);
+	connect(startSimulationAction, SIGNAL(triggered()), this, SLOT(startSimulation()));
+	
+	stopSimulationAction = new QAction(tr("Zatrzymaj symulację"), this);
+	connect(stopSimulationAction, SIGNAL(triggered()), this, SLOT(stopSimulation()));
+}
+
+void MainWindow::createMenus() {
+	QMenu *menu = menuBar()->addMenu(tr("Symulacja"));
+	menu->addAction(newSimulationAction);
+	menu->addAction(startSimulationAction);
+	menu->addAction(stopSimulationAction);
+}
+
+void MainWindow::newSimulation() {
+	NewSimulationDialog dial(this);
+	
+	dial.show();
+	
+	if (dial.exec() == QDialog::Accepted) {
+		sim = new ElasticBodySimulator(dial.x(), dial.y(), dial.z(), dial.granMass(), dial.linkMass(), dial.couple(), dial.space(), dial.initspace(), dial.time());
+		pres->setSimulator(sim);
+		pres->init();
+		pres->update();
+	}
+}
+
+void MainWindow::startSimulation() {
+	timer->start();
+}
+
+void MainWindow::stopSimulation() {
+	timer->stop();
+}
+
+void MainWindow::stepSimulation() {
+	sim->doStep();
+	pres->update();
+}

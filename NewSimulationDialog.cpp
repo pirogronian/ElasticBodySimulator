@@ -1,0 +1,50 @@
+
+#include "NewSimulationDialog.h" 
+
+using namespace Pirogronian;
+
+NewSimulationDialog::NewSimulationDialog(QWidget *p) : QDialog(p) {
+	_mLay = new QVBoxLayout(this);
+	_formLay = new QFormLayout;
+	
+	_x = new QSpinBox(this);
+	_y = new QSpinBox(this);
+	_z = new QSpinBox(this);
+	
+	_gMass = new QDoubleSpinBox(this);
+	_lMass = new QDoubleSpinBox(this);
+	_couple = new QDoubleSpinBox(this);
+	_space = new QDoubleSpinBox(this);
+	_initspace = new QDoubleSpinBox(this);
+	_time = new QDoubleSpinBox(this);
+	
+	_buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel, this);
+	
+	_x->setValue(2);
+	_y->setValue(2);
+	_z->setValue(2);
+	_gMass->setValue(1);
+	_lMass->setValue(1);
+	_couple->setValue(1);
+	_couple->setSingleStep(0.05);
+	_space->setValue(1);
+	_initspace->setValue(0.8);
+	_time->setValue(0.05);
+	_time->setSingleStep(0.05);
+	
+	_formLay->addRow(tr("Szerokość"), _x);
+	_formLay->addRow(tr("Wysokość"), _y);
+	_formLay->addRow(tr("Głębokość"), _z);
+	_formLay->addRow(tr("Masa granuli"), _gMass);
+	_formLay->addRow(tr("Masa wiązania"), _lMass);
+	_formLay->addRow(tr("Współczynnik spr."), _couple);
+	_formLay->addRow(tr("Odległosć równowagi"), _space);
+	_formLay->addRow(tr("Odległosć początkowa"), _initspace);
+	_formLay->addRow(tr("Odcinek czasu"), _time);
+	
+	_mLay->addLayout(_formLay);
+	_mLay->addWidget(_buttons);
+	
+	connect(_buttons, SIGNAL(accepted()), this, SLOT(accept()));
+	connect(_buttons, SIGNAL(rejected()), this, SLOT(reject()));
+}

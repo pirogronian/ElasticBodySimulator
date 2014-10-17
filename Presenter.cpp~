@@ -1,0 +1,95 @@
+
+#include "Presenter.h" 
+
+using namespace Pirogronian;
+
+GranuleItem::GranuleItem(Presenter *p, double x, double y) : QGraphicsEllipseItem(x, y, 10, 10) {
+	_presenter = p;
+	setBrush(QBrush(Qt::black));
+	setAcceptTouchEvents(true);
+	setFlag(ItemIsMovable);
+//	setFlag(ItemSendsGeometryChanges);
+}
+
+void GranuleItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
+	qreal x = pos().x() / _presenter->scale();
+	qreal y = pos().y() / _presenter->scale();
+	
+	if (_presenter->axis() == Presenter::X) {
+		granule->position.setY(x);
+		granule->position.setZ(y);
+	} else if (_presenter->axis() == Presenter::Y) {
+		granule->position.setX(x);
+		granule->position.setZ(y);
+	} else if (_presenter->axis() == Presenter::Z) {
+		granule->position.setX(x);
+		granule->position.setY(y);
+	}
+	
+}
+
+
+
+Presenter::Presenter(ElasticBodySimulator *s, QWidget *p) {
+	setParent(p);
+	sim = s;
+	
+	scene = new QGraphicsScene(this);
+	view = new QGraphicsView(scene, this);
+	
+	view->setResizeAnchor(QGraphicsView::NoAnchor);
+	view->setTransformationAnchor(QGraphicsView::NoAnchor);
+	
+	ax = X;
+	pos = 0;
+	_scale = 100;
+}
+
+Presenter::~Presenter () {
+}
+
+void Presenter::resizeEvent(QResizeEvent *e) {
+	view->resize(size());
+}
+
+void Presenter::init() {
+	scene->clear();
+	
+	int size1, size2;
+	
+	if (ax == X) { size1 = sim->ySize(); size2 = sim->zSize(); }
+	else if (ax == Y) { size1 = sim->xSize(); size2 = sim->zSize(); }
+	else { size1 = sim->xSize(); size2 = sim->ySize(); }
+	
+	for (int i = 0; i < size1; i++)
+		for (int j = 0; j < size2; j++) {
+			GranuleItem *item = new GranuleItem(this);
+			item->granule = (ax == X ? sim->granule(pos, i, j): (ax == Y) ? sim->granule(i, pos, j) : sim->granule(i, j, pos));
+			scene->addItem(item);
+			_itemList << item;
+		};
+//	view->resize((size1 + 1) * scale(), (size2 + 1) * scale());
+	view->resize(size());
+	view->setSceneRect(0, 0, (size1 + 1) * scale(), (size2 + 1) * scale());
+	view->show();
+}
+
+void Presenter::update() {
+//	int shiftX = view->size().width() / 2 - scale();
+//	int shiftY = view->size().height() / 2 - scale();
+	if (_itemList.isEmpty()) { puts("Empty!"); return; }
+	
+	for (QList<GranuleItem*>::iterator it = _itemList.begin(); it != _itemList.end(); it++) {
+		ElasticBodySimulator::Granule *g = (*it)->granule;
+		if (ax == X) (*it)->setPos((g->position.y() + 1) * scale(), (g->position.z() + 1) * scale());
+		if (ax == Y) (*it)->setPos((g->position.x() + 1) * scale(), (g->position.z() + 1) * scale());
+		if (ax == Z) (*it)->setPos((g->position.x() + 1) * scale(), (g->position.y() + 1) * scale());
+	//	printf("Granule at [%f][%f][%f]\n", g->position.z, g->position.y, g->position.z);
+	}
+}
+
+void Presenter::setEditable() {
+	
+}
+
+void Presenter::setUneditable() {}

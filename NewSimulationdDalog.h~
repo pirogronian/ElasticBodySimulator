@@ -1,0 +1,29 @@
+#ifndef __PIROGRONIAN__ELASTIC_BODY_SIMULATOR__NEW_SIMULATION_DIALOG__H__ 
+#ifndef __PIROGRONIAN__ELASTIC_BODY_SIMULATOR__NEW_SIMULATION_DIALOG__H__
+
+#include <QtWidgets/QtWidgets>
+
+namespace Pirogronian {
+	
+	class NewSimulationDialog : public QDialog {
+		Q_OBJECT
+		
+		QSpinBox *_x, *_y, *_z;
+		
+		QDoubleSpinBox *_gMass, *_lMass, *_couple, *_space, *_initspace, *_time;
+		QLabel *_xLabel, *_yLabel, *_zLabel, *_massLabel, *_lMassLabel, *_coupleLabel, *_spaceLabel, *_initspaceLabel, *_timeLabel;
+		
+		QDialogButtonBox *_buttons;
+		
+	public:
+		NewSimulationDialog(QWidget *p = 0);
+		
+		int x() {}
+		double granMass() { return _gMass->value(); }
+		double linkMass() { return _lMass->value(); }
+		
+	};
+	
+};
+
+#endif
