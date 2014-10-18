@@ -18,12 +18,18 @@ void GranuleItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
 	if (_presenter->axis() == Presenter::X) {
 		granule->position.setY(x);
 		granule->position.setZ(y);
+		granule->prevpos.setY(x);
+		granule->prevpos.setZ(y);
 	} else if (_presenter->axis() == Presenter::Y) {
 		granule->position.setX(x);
 		granule->position.setZ(y);
+		granule->prevpos.setX(x);
+		granule->prevpos.setZ(y);
 	} else if (_presenter->axis() == Presenter::Z) {
 		granule->position.setX(x);
 		granule->position.setY(y);
+		granule->prevpos.setX(x);
+		granule->prevpos.setY(y);
 	}
 	
 }

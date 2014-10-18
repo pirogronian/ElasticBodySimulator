@@ -32,6 +32,9 @@ ElasticBodySimulator::ElasticBodySimulator(int x, int y, int z, double granMass,
 			g.position.setX(initspace * i);
 			g.position.setY(initspace * j);
 			g.position.setZ(initspace * k);
+			g.prevpos.setX(g.position.x());
+			g.prevpos.setY(g.position.y());
+			g.prevpos.setZ(g.position.z());
 			_gMatrix[i][j][k] = g;
       }
 	 }
@@ -45,7 +48,7 @@ QVector3D ElasticBodySimulator::forces(ElasticBodySimulator::Granule a, ElasticB
     
       dis = distances(a, b);
     
-      qreal f = _couple * (dis.length() - _eqspace);
+      qreal f = _couple * (dis.length() - _eqspace) / dis.length();
     
       fp.setX(f * dis.x());
       fp.setY(f * dis.y());
@@ -86,7 +89,7 @@ void ElasticBodySimulator::updateForce(int i, int j, int k) {
 }
 
 void ElasticBodySimulator::updatePosition(ElasticBodySimulator::Granule &g) {
-	QVector3D accel, newspeed, movement;
+	QVector3D accel, newspeed, movement, newpos;
 	
 	accel = g.force / granMass();
 	
@@ -94,8 +97,12 @@ void ElasticBodySimulator::updatePosition(ElasticBodySimulator::Granule &g) {
 	
 	movement = (g.speed + newspeed) / 2 * _timeSlice;
 	
-	g.position += movement;
+	newpos = 2 * g.position - g.prevpos + g.force * timeSlice() * timeSlice() / granMass();
+	
+//	g.position += movement;
 	g.speed = newspeed;
+	g.prevpos = g.position;
+	g.position = newpos;
 }
 
 void ElasticBodySimulator::doStep() {

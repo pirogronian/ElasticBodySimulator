@@ -15,6 +15,7 @@ namespace Pirogronian {
       public:
       QVector3D speed;
       QVector3D position;
+		QVector3D prevpos;
       QVector3D force;
 		
 		
@@ -40,6 +41,7 @@ namespace Pirogronian {
     
 	 qreal granMass() { return _granMass; }
 	 qreal linkMass() { return _linkMass; }
+	 qreal timeSlice() { return _timeSlice; }
 	 
   private:
 	  qreal _granMass;
