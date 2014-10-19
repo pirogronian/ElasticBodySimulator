@@ -7,19 +7,23 @@
 namespace Pirogronian {
   
   
-  class ElasticBodySimulator : public QObject {
-	  Q_OBJECT
-  public:
-    
-     class Granule {
+	class ElasticBodySimulator : public QObject {
+		Q_OBJECT
+	public:
+
+		struct Link {
+			qreal length;
+		};
+	  
+		class Granule {
       public:
-      QVector3D speed;
-      QVector3D position;
-		QVector3D prevpos;
-      QVector3D force;
+			QVector3D speed;
+			QVector3D position;
+			QVector3D prevpos;
+			QVector3D force;
 		
-		
-    };
+			Link xLink, yLink, zLink;
+		};
     
     ElasticBodySimulator(int, int, int, qreal, qreal, qreal, qreal, qreal, qreal);
     ~ElasticBodySimulator();
@@ -42,6 +46,7 @@ namespace Pirogronian {
 	 qreal granMass() { return _granMass; }
 	 qreal linkMass() { return _linkMass; }
 	 qreal timeSlice() { return _timeSlice; }
+	 qreal eqSpace() { return _eqspace; }
 	 
   private:
 	  qreal _granMass;
@@ -66,11 +71,13 @@ namespace Pirogronian {
       return v;
     }
   
-    QVector3D inline forces(ElasticBodySimulator::Granule a, ElasticBodySimulator::Granule b);
+    QVector3D forces(ElasticBodySimulator::Granule a, ElasticBodySimulator::Granule b);
     
+	 
     qreal calcForces();
 	 void correctForces();
     
+	 void updateLength(int, int, int);
     void updateForce(int, int, int);
     
     void updatePosition(Granule&);

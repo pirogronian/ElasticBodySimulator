@@ -43,20 +43,29 @@ ElasticBodySimulator::ElasticBodySimulator(int x, int y, int z, double granMass,
 
 ElasticBodySimulator::~ElasticBodySimulator() { }
 
-QVector3D ElasticBodySimulator::forces(ElasticBodySimulator::Granule a, ElasticBodySimulator::Granule b) {
-      QVector3D dis, fp;
-    
-      dis = distances(a, b);
-    
-      qreal f = _couple * (dis.length() - _eqspace) / dis.length();
-    
-      fp.setX(f * dis.x());
-      fp.setY(f * dis.y());
-      fp.setZ(f * dis.z());
-    
-      return fp;
-    }
+void ElasticBodySimulator::updateLength(int i, int j, int k) {
+	ElasticBodySimulator::Granule g = _gMatrix[i][j][k];
+	
+	if (i < _xSize - 1) g.xLink.length = distances(g, _gMatrix[i+1][j][k]).length();
+	if (j < _ySize - 1) g.yLink.length = distances(g, _gMatrix[i][j+1][k]).length();
+	if (k < _zSize - 1) g.zLink.length = distances(g, _gMatrix[i][j][k+1]).length();
+}
 
+QVector3D ElasticBodySimulator::forces(ElasticBodySimulator::Granule a, ElasticBodySimulator::Granule b) {
+	QVector3D dis, fp;
+    
+	dis = distances(a, b);
+    
+	qreal f = _couple * (dis.length() - _eqspace) / dis.length();
+    
+	fp.setX(f * dis.x());
+	fp.setY(f * dis.y());
+	fp.setZ(f * dis.z());
+
+	return fp;
+}
+
+    
 void ElasticBodySimulator::updateForce(int i, int j, int k) {
 	ElasticBodySimulator::Granule &g =  _gMatrix[i][j][k];
 	
@@ -71,9 +80,15 @@ void ElasticBodySimulator::updateForce(int i, int j, int k) {
 	g.force.setY(0);
 	g.force.setZ(0);
 	
-	if (i < _xSize - 1) g.force += forces(g, _gMatrix[i+1][j][k]);
-	if (j < _ySize - 1) g.force += forces(g, _gMatrix[i][j+1][k]);
-	if (k < _zSize - 1) g.force += forces(g, _gMatrix[i][j][k+1]);
+	if (i < _xSize - 1) {
+		g.force += forces(g, _gMatrix[i+1][j][k]);
+	}
+	if (j < _ySize - 1) {
+		g.force += forces(g, _gMatrix[i][j+1][k]);
+	}
+	if (k < _zSize - 1) {
+		g.force += forces(g, _gMatrix[i][j][k+1]);
+	}
 	
 	if (i > 0) {
 		g.force += forces(g, _gMatrix[i-1][j][k]);
@@ -85,7 +100,7 @@ void ElasticBodySimulator::updateForce(int i, int j, int k) {
 		g.force += forces(g, _gMatrix[i][j][k-1]);
 	}
 	
-	printf("Granule[%d][%d][%d]: f(%f, %f, %f)\n", i, j, k, g.force.x(), g.force.y(), g.force.z());
+//	printf("Granule[%d][%d][%d]: f(%f, %f, %f)\n", i, j, k, g.force.x(), g.force.y(), g.force.z());
 }
 
 void ElasticBodySimulator::updatePosition(ElasticBodySimulator::Granule &g) {
@@ -115,8 +130,10 @@ void ElasticBodySimulator::doStep() {
 			
 	for (int i = 0; i < _xSize; i++)
 		for (int j = 0; j < _ySize; j++)
-			for (int k = 0; k < _zSize; k++)
+			for (int k = 0; k < _zSize; k++) {
 				updatePosition(_gMatrix[i][j][k]);
+				updateLength(i, j, k);
+			}
 }
 
 qreal ElasticBodySimulator::calcForces() {

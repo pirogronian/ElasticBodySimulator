@@ -22,8 +22,21 @@ namespace Pirogronian {
 		
 		GranuleItem(Presenter *, double x = 0, double y = 0);
 		
+		void setPresenter(Presenter *p) { _presenter = p; }
+		Presenter *presenter() { return _presenter; }
+		
+		int posx, posy;
+		
 //		void udpatePosition();
 //		void mapPosition();
+	};
+	
+	class LinkItem : public QGraphicsLineItem {
+	public:
+		GranuleItem *g1, *g2;
+		ElasticBodySimulator::Link *link;
+		
+		LinkItem();
 	};
 	
 	class Presenter : public QWidget {
@@ -35,8 +48,11 @@ namespace Pirogronian {
 	private:
 		Axis ax;
 		int pos;
+		bool _editable;
 		
 		QList<GranuleItem*> _itemList;
+		QVector<QVector<GranuleItem*> > _itemMatrix;
+		QList<LinkItem*> _linkList;
 		
 		QGraphicsScene *scene;
 		QGraphicsView *view;
@@ -46,6 +62,8 @@ namespace Pirogronian {
 		double _scale;
 		
 		void resizeEvent(QResizeEvent *);
+		
+		LinkItem *createLink(GranuleItem *, GranuleItem *, Axis);
 		
 	public:
 		
@@ -62,11 +80,14 @@ namespace Pirogronian {
 		
 		void setEditable();
 		void setUneditable();
+		bool isEditable();
 		
 		Presenter(ElasticBodySimulator *s =0, QWidget *parent = 0);
 		~Presenter();
 		
 		void init();
+		
+		void putMatrix();
 		
 	public slots:
 		void update();

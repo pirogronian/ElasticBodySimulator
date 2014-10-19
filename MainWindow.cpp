@@ -21,8 +21,11 @@ MainWindow::MainWindow() {
 	createMenus();
 	
 	pres = new Presenter;
+	pres->setEditable();
 	
 	setCentralWidget(pres);
+	
+	sim = 0;
 }
 
 MainWindow::~MainWindow() {
@@ -56,6 +59,7 @@ void MainWindow::newSimulation() {
 	dial.show();
 	
 	if (dial.exec() == QDialog::Accepted) {
+		if (sim) delete sim;
 		sim = new ElasticBodySimulator(dial.x(), dial.y(), dial.z(), dial.granMass(), dial.linkMass(), dial.couple(), dial.space(), dial.initspace(), dial.time());
 		pres->setSimulator(sim);
 		pres->init();
@@ -64,11 +68,13 @@ void MainWindow::newSimulation() {
 }
 
 void MainWindow::startSimulation() {
+	pres->setUneditable();
 	timer->start();
 }
 
 void MainWindow::stopSimulation() {
 	timer->stop();
+	pres->setEditable();
 }
 
 void MainWindow::stepSimulation() {
