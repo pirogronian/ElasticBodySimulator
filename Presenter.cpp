@@ -38,6 +38,18 @@ void GranuleItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
 	
 }
 
+void GranuleItem::switchMovable() {
+	granule->movable = granule->movable ? false : true;
+	setBrush(QBrush(granule->movable ? (Qt::black) : (QColor(255, 64, 128))));
+}
+
+void GranuleItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *e) {
+	QMenu menu;
+	QAction *setmovableAction = menu.addAction(tr(granule->movable ? "Unieruchom" : "Uruchom"));
+	connect(setmovableAction, SIGNAL(triggered()), this, SLOT(switchMovable()));
+	menu.exec(e->screenPos());
+}
+
 LinkItem::LinkItem() {
 	QPen pen;
 	
@@ -141,7 +153,7 @@ void Presenter::init() {
 			scene->addItem(item);
 			_itemList << item;
 			_itemMatrix[i].append(item);
-			
+			item->setZValue(0);
 		}
 	}
 	
@@ -159,6 +171,7 @@ void Presenter::init() {
 					scene->addItem(item);
 					_linkList << item;
 				}
+				item->setZValue(1);
 			}
 	}
 	
@@ -198,15 +211,20 @@ void Presenter::update() {
 	}
 	
 	for (QList<LinkItem*>::iterator it = _linkList.begin(); it != _linkList.end(); it++) {
-		qreal b = sqrt(sim->eqSpace() + 6) + sim->eqSpace();
+		qreal b = sqrt(sim->eqSpace() * scale() + 6) + sim->eqSpace() * scale();
 		qreal a = 510/b;
 		qreal c = -255;
-		int colint = a / ((*it)->link->length + b) + c;
+		int colint = a / ((*it)->link->length * scale() + b) + c;
+		colint = (sim->eqSpace() - (*it)->link->length);
+		printf("Eq space - length: %f = %d\n", (sim->eqSpace() - (*it)->link->length), colint);
+		if (colint > 255) colint = 255;
+		if (colint < -255) colint = -255;
 		QColor col;
-		if (colint < 0) col.setRgb(colint, 0, 0);
+		if (colint < 0) col.setRgb(-colint, 0, 0);
 		else col.setRgb(0, colint, 0);
 		QPen pen = (*it)->pen();
 		pen.setBrush(col);
+		(*it)->setPen(pen);
 		
 		(*it)->setLine(QLineF((*it)->g1->pos() + QPoint(5, 5), (*it)->g2->pos() + QPoint(5, 5)));
 	}

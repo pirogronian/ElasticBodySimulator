@@ -35,6 +35,7 @@ ElasticBodySimulator::ElasticBodySimulator(int x, int y, int z, double granMass,
 			g.prevpos.setX(g.position.x());
 			g.prevpos.setY(g.position.y());
 			g.prevpos.setZ(g.position.z());
+			g.movable = true;
 			_gMatrix[i][j][k] = g;
       }
 	 }
@@ -105,6 +106,8 @@ void ElasticBodySimulator::updateForce(int i, int j, int k) {
 
 void ElasticBodySimulator::updatePosition(ElasticBodySimulator::Granule &g) {
 	QVector3D accel, newspeed, movement, newpos;
+	
+	if (!g.movable) return;
 	
 	accel = g.force / granMass();
 	

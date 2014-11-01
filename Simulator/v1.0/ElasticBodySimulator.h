@@ -23,6 +23,8 @@ namespace Pirogronian {
 			QVector3D force;
 		
 			Link xLink, yLink, zLink;
+			
+			bool movable;
 		};
     
     ElasticBodySimulator(int, int, int, qreal, qreal, qreal, qreal, qreal, qreal);

@@ -10,7 +10,8 @@ namespace Pirogronian {
 	
 	class Presenter;
 	
-	class GranuleItem : public QGraphicsEllipseItem {
+	class GranuleItem : public QObject, public QGraphicsEllipseItem {
+		Q_OBJECT
 		
 	protected:
 		virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
@@ -29,6 +30,9 @@ namespace Pirogronian {
 		
 //		void udpatePosition();
 //		void mapPosition();
+		void contextMenuEvent(QGraphicsSceneContextMenuEvent*);
+	private slots:
+		void switchMovable();
 	};
 	
 	class LinkItem : public QGraphicsLineItem {
